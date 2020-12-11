@@ -5,6 +5,12 @@ on:
     types: ["publish:build"]
 
 jobs:
+  # Here is where we will set the build version.
+  # This proof-of-concept echos out the version, but I think
+  # we could do our normal build-version.js script that sets
+  # it in the package.json file and upload that as the artifact.
+  # It looks like v2 of the download-artifact script allows us
+  # to download into the root and overwrite the exsiting package.json.
   prepare:
     runs-on: ubuntu-latest
 
@@ -20,4 +26,51 @@ jobs:
           ref: ${{ github.head_ref }}
 
       - name: Set the build version
-        run: node scripts/build-version.js
+        run: node scripts/build-version.js > version.txt
+
+      - name: Upload version
+        uses: actions/upload-artifact@v1
+        with:
+          name: version
+          path: version.txt
+
+  # This depends on the prepare step so these won't trigger until that
+  # step is complete.  We could even check an success() method to make
+  # sure everything is fine before we proceed.  If we are able to upload
+  # the package.json as an artifact in prepare, we should download the
+  # the artifact after we checkout the repo here.
+  publish:
+    needs: [prepare]
+    strategy:
+      matrix:
+        os: ["ubuntu-16.04", "ubuntu-latest", "ubuntu-20.04"]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Download Version Artifact
+        uses: actions/download-artifact@v1
+        with:
+          name: version
+
+      - name: Get Build Version
+        id: get_build_version
+        run: |
+          value=`cat version/version.txt`
+          echo "::set-output name=version::$value"
+
+      - name: Print Build Version
+        run: echo ${{ steps.get_build_version.outputs.version }}
+
+  # The v2 of the upload-artifact also allows us to set the expiration
+  # time of the artifact, we could change that to 1 day or something and
+  # skip the delete artifacts part in this step.
+  cleanup:
+    name: Remove Artifacts
+    needs: [publish]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete Artifact
+        uses: geekyeggo/delete-artifact@v1
+        with:
+          name: version
