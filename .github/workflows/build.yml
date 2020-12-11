@@ -14,5 +14,10 @@ jobs:
         with:
           node-version: "12.x"
 
+      - name: Clone the repository
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.head_ref }}
+
       - name: Set the build version
         run: node scripts/build-version.js
