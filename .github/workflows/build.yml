@@ -1,0 +1,13 @@
+name: Test Build Script
+
+on:
+    repository_dispatch:
+        types: ["publish:build"]
+
+jobs:
+    prepare:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Set the build version
+              run: node scripts/build-version.js
