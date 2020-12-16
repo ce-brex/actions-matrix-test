@@ -1,3 +1,25 @@
-const hrTime = process.hrtime();
+const semverCoerce = require("semver/functions/coerce");
+const semverValid = require("semver/functions/valid");
+const { generate } = require("build-number-generator");
+const { exec } = require("child_process");
 
-console.log(hrTime[0] * 1000000 + hrTime[1] / 1000)
+const version = semverValid(semverCoerce(process.env.npm_package_version));
+
+const buildVersion = generate({
+	version: version,
+	versionSeparator: "-"
+});
+
+exec(`npm version --no-git-tag ${buildVersion}`, (error, stdout, stderr) => {
+	if (error) {
+		console.error(error.message);
+		return;
+	}
+
+	if (stderr) {
+		console.error(stderr);
+		return;
+	}
+
+	console.log(stdout);
+});

@@ -5,12 +5,9 @@ on:
     types: ["publish:build"]
 
 jobs:
-  # Here is where we will set the build version.
-  # This proof-of-concept echos out the version, but I think
-  # we could do our normal build-version.js script that sets
-  # it in the package.json file and upload that as the artifact.
-  # It looks like v2 of the download-artifact script allows us
-  # to download into the root and overwrite the exsiting package.json.
+  # Here we will run the versioning script and then upload the package.json
+  # as an artificat.  In the build steps on the matrix, we can download this
+  # file after checking out the repo and before installing dependencies.
   prepare:
     runs-on: ubuntu-latest
 
@@ -25,20 +22,22 @@ jobs:
         with:
           ref: ${{ github.head_ref }}
 
+      - name: Install dependencies
+        run: npm install
+
       - name: Set the build version
-        run: node scripts/build-version.js > version.txt
+        run: npm run version:build
 
       - name: Upload version
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v2
         with:
-          name: version
-          path: version.txt
+          name: package-json
+          path: package.json
+          retention-days: 1
 
   # This depends on the prepare step so these won't trigger until that
   # step is complete.  We could even check an success() method to make
-  # sure everything is fine before we proceed.  If we are able to upload
-  # the package.json as an artifact in prepare, we should download the
-  # the artifact after we checkout the repo here.
+  # sure everything is fine before we proceed.
   publish:
     needs: [prepare]
     strategy:
@@ -48,29 +47,23 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      - name: Download Version Artifact
-        uses: actions/download-artifact@v1
+      - name: Setup Node
+        uses: actions/setup-node@v1
         with:
-          name: version
+          node-version: "12.x"
 
-      - name: Get Build Version
-        id: get_build_version
-        run: |
-          value=`cat version/version.txt`
-          echo "::set-output name=version::$value"
+      - name: Clone the repository
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.head_ref }}
+
+      - name: Download package artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: package-json
+
+      - name: Install dependencies
+        run: npm install
 
       - name: Print Build Version
-        run: echo ${{ steps.get_build_version.outputs.version }}
-
-  # The v2 of the upload-artifact also allows us to set the expiration
-  # time of the artifact, we could change that to 1 day or something and
-  # skip the delete artifacts part in this step.
-  cleanup:
-    name: Remove Artifacts
-    needs: [publish]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Delete Artifact
-        uses: geekyeggo/delete-artifact@v1
-        with:
-          name: version
+        run: npm run publish
