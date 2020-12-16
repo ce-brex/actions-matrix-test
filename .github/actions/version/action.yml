@@ -1,0 +1,8 @@
+name: "Build Version"
+description: "Generate a date based build version"
+outputs:
+  version:
+    description: "The generated build version"
+runs:
+  using: "node12"
+  main: "dist/index.js"

@@ -1,0 +1,1 @@
+Changes should be made in index.js.  Instead of commiting the `node_modules` directory to git, run `npx ncc build index.js -o dist` from within the .github/actions/version directory.

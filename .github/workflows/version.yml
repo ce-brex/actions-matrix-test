@@ -1,0 +1,34 @@
+name: Test Version Action
+
+on:
+  repository_dispatch:
+    types: ["version-build"]
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+
+    outputs:
+      version: ${{ steps.build_version.outputs.version }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.head_ref }}
+
+      - name: Get Build Version
+        id: build_version
+        uses: ./.github/actions/version
+
+  publish:
+    needs: prepare
+    strategy:
+      matrix:
+        os: ["ubuntu-16.04", "ubuntu-latest", "ubuntu-20.04"]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Output Build Version
+        run: echo "Build Version ${{ needs.prepare.outputs.version }}"
