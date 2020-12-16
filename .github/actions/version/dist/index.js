@@ -2,39 +2,7 @@ module.exports =
 /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
-/***/ 932:
-/***/ ((__unused_webpack_module, __unused_webpack_exports, __webpack_require__) => {
-
-const semverCoerce = __webpack_require__(466);
-const semverValid = __webpack_require__(601);
-const { generate } = __webpack_require__(993);
-const core = __webpack_require__(186);
-const fs = __webpack_require__(747);
-const { join } = __webpack_require__(622);
-
-try {
-    const path = core.getInput("path");
-    const packageJson = fs.readFileSync(join(path, 'package.json')).toString();
-    const packageVersion = JSON.parse(packageJson).version;
-
-    const version = semverValid(semverCoerce(packageVersion));
-
-    const buildVersion = generate({
-        version: version,
-        versionSeparator: "-"
-    });
-
-    console.log(`Package Version: ${packageVersion}`);
-    console.log(`Build Version: ${buildVersion}`);
-
-    core.setOutput('version', buildVersion);
-} catch (error) {
-    core.setFailed(error.message);
-}
-
-/***/ }),
-
-/***/ 351:
+/***/ 241:
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
@@ -142,7 +110,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const command_1 = __webpack_require__(351);
+const command_1 = __webpack_require__(241);
 const file_command_1 = __webpack_require__(717);
 const utils_1 = __webpack_require__(278);
 const os = __importStar(__webpack_require__(87));
@@ -1216,6 +1184,38 @@ createToken('GTE0PRE', '^\\s*>=\\s*0\.0\.0-0\\s*$')
 
 /***/ }),
 
+/***/ 351:
+/***/ ((__unused_webpack_module, __unused_webpack_exports, __webpack_require__) => {
+
+const semverCoerce = __webpack_require__(466);
+const semverValid = __webpack_require__(601);
+const { generate } = __webpack_require__(993);
+const core = __webpack_require__(186);
+const fs = __webpack_require__(747);
+const { join } = __webpack_require__(622);
+
+try {
+    const path = core.getInput("path");
+    const packageJson = fs.readFileSync(join(path, 'package.json')).toString();
+    const packageVersion = JSON.parse(packageJson).version;
+
+    const version = semverValid(semverCoerce(packageVersion));
+
+    const buildVersion = generate({
+        version: version,
+        versionSeparator: "-"
+    });
+
+    core.info(`Package Version: ${packageVersion}`);
+    core.info(`Build Version: ${buildVersion}`);
+
+    core.setOutput('version', buildVersion);
+} catch (error) {
+    core.setFailed(error.message);
+}
+
+/***/ }),
+
 /***/ 747:
 /***/ ((module) => {
 
@@ -1278,6 +1278,6 @@ module.exports = require("path");;
 /******/ 	// module exports must be returned from runtime so entry inlining is disabled
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(932);
+/******/ 	return __webpack_require__(351);
 /******/ })()
 ;

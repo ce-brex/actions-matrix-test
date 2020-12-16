@@ -17,8 +17,8 @@ try {
         versionSeparator: "-"
     });
 
-    console.log(`Package Version: ${packageVersion}`);
-    console.log(`Build Version: ${buildVersion}`);
+    core.info(`Package Version: ${packageVersion}`);
+    core.info(`Build Version: ${buildVersion}`);
 
     core.setOutput('version', buildVersion);
 } catch (error) {
