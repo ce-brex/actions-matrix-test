@@ -1,5 +1,10 @@
 name: "Build Version"
 description: "Generate a date based build version"
+inputs:
+  path:
+    description: "Path of package.json"
+    default: "./"
+    required: false
 outputs:
   version:
     description: "The generated build version"

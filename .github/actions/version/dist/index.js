@@ -9,17 +9,25 @@ const semverCoerce = __webpack_require__(466);
 const semverValid = __webpack_require__(601);
 const { generate } = __webpack_require__(993);
 const core = __webpack_require__(186);
-
-const version = semverValid(semverCoerce(process.env.npm_package_version));
-
-const buildVersion = generate({
-    version: version,
-    versionSeparator: "-"
-});
+const fs = __webpack_require__(747);
+const { join } = __webpack_require__(622);
 
 try {
-    core.setOutput('version', buildVersion);
+    const path = core.getInput("path");
+    const packageJson = fs.readFileSync(join(path, 'package.json')).toString();
+    const packageVersion = JSON.parse(packageJson).version;
+
+    const version = semverValid(semverCoerce(packageVersion));
+
+    const buildVersion = generate({
+        version: version,
+        versionSeparator: "-"
+    });
+
+    console.log(`Package Version: ${packageVersion}`);
     console.log(`Build Version: ${buildVersion}`);
+
+    core.setOutput('version', buildVersion);
 } catch (error) {
     core.setFailed(error.message);
 }
