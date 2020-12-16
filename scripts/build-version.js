@@ -3,10 +3,10 @@ const semverValid = require("semver/functions/valid");
 const { generate } = require("build-number-generator");
 const { exec } = require("child_process");
 
-const version = semverValid(semverCoerce(process.env.npm_package_version));
+const version = process.argv.slice(2)[0] || process.env.npm_package_version || 0;
 
 const buildVersion = generate({
-	version: version,
+	version: semverValid(semverCoerce(version)),
 	versionSeparator: "-"
 });
 
